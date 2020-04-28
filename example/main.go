@@ -12,7 +12,7 @@ func main() {
 	easyhttp.Routes["/"] = func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("欢迎访问."))
 	}
-	easyhttp.Routes[`/static/(.*)`] = func(w http.ResponseWriter, req *http.Request) {
+	easyhttp.RERoutes[`/static/(.*)`] = func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("欢迎访问正则路由."))
 	}
 	easyhttp.Run(":80")

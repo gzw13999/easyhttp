@@ -10,14 +10,16 @@ import (
 
 	"os"
 	"os/signal"
+
 	"regexp"
 	"strings"
 	"time"
 )
 
 type Easyhttp struct {
-	server *http.Server
-	Routes map[string]func(http.ResponseWriter, *http.Request)
+	server   *http.Server
+	Routes   map[string]func(http.ResponseWriter, *http.Request)
+	RERoutes map[string]func(http.ResponseWriter, *http.Request)
 }
 
 func (ehttp *Easyhttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -33,13 +35,13 @@ func (ehttp *Easyhttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h(w, r)
 		return
 	} else {
-		for k, v := range ehttp.Routes {
+		for k, v := range ehttp.RERoutes {
 			if reg, err := regexp.Compile(k); err == nil {
 				if reg.MatchString(visiturl) {
+					fmt.Println("正则规则")
 					v(w, r)
 					return
 				}
-
 			}
 
 		}
@@ -51,7 +53,7 @@ func (ehttp *Easyhttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func New() *Easyhttp {
 	ehttp := new(Easyhttp)
 	ehttp.Routes = make(map[string]func(http.ResponseWriter, *http.Request))
-
+	ehttp.RERoutes = make(map[string]func(http.ResponseWriter, *http.Request))
 	return ehttp
 
 }
