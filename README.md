@@ -5,7 +5,7 @@ golang easyhttp.
 
 ### Using *go get*
 ```
-    $ go get github.com/gzw13999/easyhttp
+$ go get github.com/gzw13999/easyhttp
 ```
 ## Example
 ```
