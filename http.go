@@ -43,15 +43,6 @@ func (ehttp *Easyhttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 
 		}
-		// for k, v := range ehttp.RERoutes {
-
-		// 	if k.pattern.MatchString(visiturl) {
-		// 		// route.handler.ServeHTTP(w, r)
-		// 		// fmt.Println("匹配", r.URL.Path)
-		// 		v(w, r)
-		// 		return
-		// 	}
-		// }
 		w.WriteHeader(http.StatusNotFound)
 		io.WriteString(w, "   404 Not Found!\n\nUrl:"+visiturl+"\npath:"+r.URL.Path+"\nurl:"+r.URL.String())
 	}
