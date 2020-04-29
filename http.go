@@ -38,7 +38,6 @@ func (ehttp *Easyhttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		for k, v := range ehttp.RERoutes {
 			if reg, err := regexp.Compile(k); err == nil {
 				if reg.MatchString(visiturl) {
-					fmt.Println("正则规则")
 					v(w, r)
 					return
 				}
