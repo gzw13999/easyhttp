@@ -17,9 +17,11 @@ import (
 )
 
 type Easyhttp struct {
-	server   *http.Server
-	Routes   map[string]func(http.ResponseWriter, *http.Request)
-	RERoutes map[string]func(http.ResponseWriter, *http.Request)
+	server       *http.Server
+	ReadTimeout  int
+	WriteTimeout int
+	Routes       map[string]func(http.ResponseWriter, *http.Request)
+	RERoutes     map[string]func(http.ResponseWriter, *http.Request)
 }
 
 func (ehttp *Easyhttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -59,11 +61,18 @@ func New() *Easyhttp {
 
 func (ehttp *Easyhttp) Run(addr string) {
 
+	if ehttp.ReadTimeout == 0 {
+		ehttp.ReadTimeout = 10
+	}
+	if ehttp.WriteTimeout == 0 {
+		ehttp.WriteTimeout = 10
+	}
+
 	ehttp.server = &http.Server{
 		Addr:           addr,
 		Handler:        ehttp,
-		ReadTimeout:    10 * time.Second, // 读超时设置  读取clent超时 不可更改，否则客户会提示 io timeout
-		WriteTimeout:   10 * time.Second, // 写超时设置  给client写数据超时
+		ReadTimeout:    time.Duration(ehttp.ReadTimeout) * time.Second,  // 读超时设置  读取clent超时 不可更改，否则客户会提示 io timeout
+		WriteTimeout:   time.Duration(ehttp.WriteTimeout) * time.Second, // 写超时设置  给client写数据超时
 		MaxHeaderBytes: 1 << 20,
 	}
 
