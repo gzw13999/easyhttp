@@ -18,6 +18,7 @@ import (
 
 type Easyhttp struct {
 	server       *http.Server
+	serverSSL    *http.Server
 	ReadTimeout  int
 	WriteTimeout int
 	Routes       map[string]func(http.ResponseWriter, *http.Request)
@@ -91,16 +92,6 @@ func (ehttp *Easyhttp) Run(addr string) {
 		}
 	}()
 
-	//监听HTTPS
-	if ehttp.SSL {
-		go func() {
-			err := ehttp.server.ListenAndServeTLS(ehttp.CertFile, ehttp.KeyFile)
-			if err != nil {
-				fmt.Println("SSL ListenAndServe:", err)
-			}
-		}()
-	}
-
 	fmt.Println("开始运行", addr)
 	//监听
 	if err := ehttp.server.ListenAndServe(); err != nil {
@@ -113,9 +104,53 @@ func (ehttp *Easyhttp) Run(addr string) {
 	}
 }
 
+func (ehttp *Easyhttp) RunSSL(addr string) {
+
+	if ehttp.ReadTimeout == 0 {
+		ehttp.ReadTimeout = 10
+	}
+	if ehttp.WriteTimeout == 0 {
+		ehttp.WriteTimeout = 10
+	}
+
+	ehttp.serverSSL = &http.Server{
+		Addr:           addr,
+		Handler:        ehttp,
+		ReadTimeout:    time.Duration(ehttp.ReadTimeout) * time.Second,  // 读超时设置  读取clent超时 不可更改，否则客户会提示 io timeout
+		WriteTimeout:   time.Duration(ehttp.WriteTimeout) * time.Second, // 写超时设置  给client写数据超时
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	// 一个通知退出的chan
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	go func() {
+		// 接收退出信号
+		quit := make(chan os.Signal)
+		<-quit
+		if err := ehttp.serverSSL.Close(); err != nil {
+			fmt.Println("Close server:", err)
+		}
+	}()
+
+	fmt.Println("开始运行", addr)
+	//监听
+	if err := ehttp.serverSSL.ListenAndServeTLS(ehttp.CertFile, ehttp.KeyFile); err != nil {
+		// 正常退出
+		if err == http.ErrServerClosed {
+			fmt.Println("Server closed under request")
+		} else {
+			fmt.Println("Server closed unexpected", err)
+		}
+	}
+}
+
 func (http *Easyhttp) Shutdown() {
-	err := http.server.Shutdown(nil)
-	if err != nil {
+	if err := http.server.Shutdown(nil); err != nil {
+		fmt.Println([]byte("shutdown the server err"))
+	}
+
+	if err := http.serverSSL.Shutdown(nil); err != nil {
 		fmt.Println([]byte("shutdown the server err"))
 	}
 }
