@@ -22,6 +22,9 @@ type Easyhttp struct {
 	WriteTimeout int
 	Routes       map[string]func(http.ResponseWriter, *http.Request)
 	RERoutes     map[string]func(http.ResponseWriter, *http.Request)
+	SSL          bool
+	CertFile     string
+	KeyFile      string
 }
 
 func (ehttp *Easyhttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -87,6 +90,16 @@ func (ehttp *Easyhttp) Run(addr string) {
 			fmt.Println("Close server:", err)
 		}
 	}()
+
+	//监听HTTPS
+	if ehttp.SSL {
+		go func() {
+			err := ehttp.server.ListenAndServeTLS(ehttp.CertFile, ehttp.KeyFile)
+			if err != nil {
+				fmt.Println("SSL ListenAndServe:", err)
+			}
+		}()
+	}
 
 	fmt.Println("开始运行", addr)
 	//监听
