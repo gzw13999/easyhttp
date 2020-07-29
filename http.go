@@ -147,12 +147,17 @@ func (ehttp *Easyhttp) RunSSL(addr string) {
 
 func (http *Easyhttp) Shutdown() {
 	if err := http.server.Shutdown(nil); err != nil {
-		fmt.Println([]byte("shutdown the server err"))
+		fmt.Println("shutdown the server err")
+	}else{
+		fmt.Println("HTTP服务正常退出")
 	}
 
 	if err := http.serverSSL.Shutdown(nil); err != nil {
-		fmt.Println([]byte("shutdown the server err"))
+		fmt.Println("shutdown the serverSSL err")
+	}else{
+		fmt.Println("HTTPS服务正常退出")
 	}
+
 }
 
 func Ext2ct(ext string) string {
