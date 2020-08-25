@@ -152,10 +152,12 @@ func (http *Easyhttp) Shutdown() {
 		fmt.Println("HTTP服务正常退出")
 	}
 
-	if err := http.serverSSL.Shutdown(nil); err != nil {
-		fmt.Println("shutdown the serverSSL err")
-	}else{
-		fmt.Println("HTTPS服务正常退出")
+	if http.SSL {
+		if err := http.serverSSL.Shutdown(nil); err != nil {
+			fmt.Println("shutdown the serverSSL err")
+		} else {
+			fmt.Println("HTTPS服务正常退出")
+		}
 	}
 
 }
