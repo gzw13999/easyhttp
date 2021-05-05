@@ -23,14 +23,18 @@ type Easyhttp struct {
 	WriteTimeout int
 	Routes       map[string]func(http.ResponseWriter, *http.Request)
 	RERoutes     map[string]func(http.ResponseWriter, *http.Request)
+	Headers 	 map[string]string
 	SSL          bool
 	CertFile     string
 	KeyFile      string
 }
 
 func (ehttp *Easyhttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Server", " Server ")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Server", "easyHttp")
+
+	for k,v:=range ehttp.Headers{
+		w.Header().Set(k, v)
+	}
 
 	visiturl := strings.ToLower(path.Clean(r.URL.Path))
 
@@ -59,6 +63,7 @@ func New() *Easyhttp {
 	ehttp := new(Easyhttp)
 	ehttp.Routes = make(map[string]func(http.ResponseWriter, *http.Request))
 	ehttp.RERoutes = make(map[string]func(http.ResponseWriter, *http.Request))
+	ehttp.Headers = make(map[string]string)
 	return ehttp
 
 }
